@@ -395,6 +395,7 @@ class KalmanVariationalAutoencoder(object):
         all_summaries = tf.summary.merge_all()
 
         for n in range(self.config.num_epochs):
+            print('epoch {}'.format(n))
             elbo_tot = []
             elbo_kf = []
             kf_log_probs = []
