@@ -4,6 +4,7 @@ import os
 import numpy as np
 import tensorflow as tf
 from kvae.KalmanVariationalAutoencoder import KalmanVariationalAutoencoder
+from kvae.CompactKalmanVariationalAutoencoder import CompactKalmanVariationalAutoencoder
 from kvae.utils import reload_config, get_image_config
 
 import seaborn as sns
@@ -39,7 +40,8 @@ def run():
     os.environ['CUDA_VISIBLE_DEVICES'] = config.gpu
 
     with tf.Session() as sess:
-        model = KalmanVariationalAutoencoder(config, sess)
+        #model = KalmanVariationalAutoencoder(config, sess)
+        model = CompactKalmanVariationalAutoencoder(config, sess)
 
         model.build_model().build_loss().initialize_variables()
         err = model.train()
