@@ -145,7 +145,7 @@ class CompactKalmanFilter(object):
         return mu_back, Sigma_back
 
     def compute_backwards(self, forward_states):
-        mu_pred, Sigma_pred, mu_filt, Sigma_filt, _, _ alpha, u, state, buffer, A, B, C = forward_states
+        mu_pred, Sigma_pred, mu_filt, Sigma_filt, _, _, alpha, u, state, buffer, A, B, C = forward_states
         mu_pred = tf.expand_dims(mu_pred, 3)
         mu_filt = tf.expand_dims(mu_filt, 3)
         # The tf.scan below that does the smoothing is initialized with the filtering distribution at time T.
