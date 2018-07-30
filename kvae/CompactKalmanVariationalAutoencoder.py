@@ -509,7 +509,7 @@ class CompactKalmanVariationalAutoencoder(object):
         #      % (np.mean(elbo_tot), mean_kf_log_probs[0], mean_kf_log_probs[1],
         #         mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
         #         time.time() - time_test_start))
-        print("Epoch %d, ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
+        print("ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
                       % (np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
                          time.time() - time_test_start))
 
