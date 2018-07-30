@@ -410,7 +410,7 @@ class CompactKalmanVariationalAutoencoder(object):
             log_qa = []
             time_epoch_start = time.time()
             for i in range(num_batches):
-                print('batch {} of {}:'.format(i, num_batches))
+                #print('batch {} of {}:'.format(i, num_batches))
                 slc = slice(i * self.config.batch_size, (i + 1) * self.config.batch_size)
                 feed_dict = {self.x: self.train_data.images[slc],
                              self.kf.u: self.train_data.controls[slc],
@@ -510,7 +510,7 @@ class CompactKalmanVariationalAutoencoder(object):
         #         mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
         #         time.time() - time_test_start))
         print("Epoch %d, ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
-                      % (n, np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
+                      % (np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
                          time.time() - time_test_start))
 
         return np.mean(elbo_tot), summary
