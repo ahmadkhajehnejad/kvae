@@ -15,6 +15,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
+import sys
+
 import seaborn as sns
 sns.set_style("whitegrid", {'axes.grid': False})
 
@@ -402,6 +404,7 @@ class CompactKalmanVariationalAutoencoder(object):
 
         for n in range(self.config.num_epochs):
             print('epoch {}'.format(n))
+            sys.stdout.flus()
             elbo_tot = []
             elbo_kf = []
             #kf_log_probs = []
