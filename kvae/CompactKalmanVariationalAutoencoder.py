@@ -404,7 +404,7 @@ class CompactKalmanVariationalAutoencoder(object):
 
         for n in range(self.config.num_epochs):
             print('epoch {}'.format(n))
-            sys.stdout.flus()
+            sys.stdout.flush()
             elbo_tot = []
             elbo_kf = []
             #kf_log_probs = []
