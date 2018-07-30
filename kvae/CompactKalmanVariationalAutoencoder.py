@@ -413,7 +413,8 @@ class CompactKalmanVariationalAutoencoder(object):
             log_qa = []
             time_epoch_start = time.time()
             for i in range(num_batches):
-                #print('batch {} of {}:'.format(i, num_batches))
+                print('batch {} of {}:'.format(i, num_batches))
+                sys.stdout.flush()
                 slc = slice(i * self.config.batch_size, (i + 1) * self.config.batch_size)
                 feed_dict = {self.x: self.train_data.images[slc],
                              self.kf.u: self.train_data.controls[slc],
@@ -455,18 +456,25 @@ class CompactKalmanVariationalAutoencoder(object):
                 print("Epoch %d, ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
                       % (n, np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
                          time.time() - time_epoch_start))
+                sys.stdout.flush()
 
 
             if (((n + 1) % self.config.generate_step == 0) and n > 0) or (n == self.config.num_epochs - 1) or (n == 0):
                 # Impute and calculate error
+                print('impute')
+                sys.stdout.flush()
                 mask_impute = self.mask_impute_planning(t_init_mask=self.config.t_init_mask,
                                                         t_steps_mask=self.config.t_steps_mask)
                 out_res = self.impute(mask_impute, t_init_mask=self.config.t_init_mask, n=n)
 
                 # Generate sequences for evaluation
+                print('generate')
+                sys.stdout.flush()
                 self.generate(n=n)
 
                 # Test on previously unseen data
+                print('test')
+                sys.stdout.flush()
                 test_elbo, summary_test = self.test()
                 writer.add_summary(summary_test, n)
 
