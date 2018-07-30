@@ -262,7 +262,7 @@ class CompactKalmanVariationalAutoencoder(object):
         smooth, A, B, C, alpha_plot = self.kf.smooth()
 
         # Get filtered posterior, used only for imputation plots
-        filter, A_filter, B_filter, C_filter, alpha_plot_filter = self.kf.filter()
+        filter, _, _, C_filter, _ = self.kf.filter()
 
         # Get a from the prior z (for plotting)
         a_mu_pred = tf.matmul(C, tf.expand_dims(smooth[0], 2), transpose_b=True)

@@ -212,10 +212,6 @@ class CompactKalmanFilter(object):
                                  parallel_iterations=1, name='forward')
         return forward_states
 
-    def sample_generative_tf(self, forward_states, n_steps, deterministic=True, init_fixed_steps=1):
-        mu_y, Sigma_y = forward_states
-        
-
     def sample_generative_tf(self, backward_states, n_steps, deterministic=True, init_fixed_steps=1):
         """
         Get a sample from the generative model
@@ -309,9 +305,8 @@ class CompactKalmanFilter(object):
         forward_states[2] = tf.transpose(forward_states[2], [1, 0, 2])
         forward_states[3] = tf.transpose(forward_states[3], [1, 0, 2, 3])
 
-        #return tuple(forward_states), tf.transpose(A, [1, 0, 2, 3]), tf.transpose(B, [1, 0, 2, 3]), \
-        #       tf.transpose(C, [1, 0, 2, 3]), tf.transpose(alpha, [1, 0, 2])
-        return tuple(forward_states)
+        return tuple(forward_states), tf.transpose(A, [1, 0, 2, 3]), tf.transpose(B, [1, 0, 2, 3]), \
+               tf.transpose(C, [1, 0, 2, 3]), tf.transpose(alpha, [1, 0, 2])
 
     def smooth(self):
         backward_states, A, B, C, alpha = self.compute_backwards(self.compute_forwards())
