@@ -330,6 +330,7 @@ class CompactKalmanVariationalAutoencoder(object):
         # Collect variables to monitor lb
         #self.lb_vars = [elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa]
         self.lb_vars = [elbo_tot, elbo_kf, elbo_vae, log_px, log_qa]
+        
 
         # Get list of vars for gradient computation
         vae_vars = slim.get_variables('vae')
@@ -403,12 +404,13 @@ class CompactKalmanVariationalAutoencoder(object):
             print('epoch {}'.format(n))
             elbo_tot = []
             elbo_kf = []
-            kf_log_probs = []
+            #kf_log_probs = []
             elbo_vae = []
             log_px = []
             log_qa = []
             time_epoch_start = time.time()
             for i in range(num_batches):
+                print('batch {} of {}:'.format(i, num_batches))
                 slc = slice(i * self.config.batch_size, (i + 1) * self.config.batch_size)
                 feed_dict = {self.x: self.train_data.images[slc],
                              self.kf.u: self.train_data.controls[slc],
@@ -426,25 +428,31 @@ class CompactKalmanVariationalAutoencoder(object):
                     sess.run(self.all_updates, feed_dict)
 
                 # Bookkeeping.
-                _elbo_tot, _elbo_kf, _kf_log_probs, _elbo_vae, _log_px, _log_qa = sess.run(self.lb_vars, feed_dict)
+                #_elbo_tot, _elbo_kf, _kf_log_probs, _elbo_vae, _log_px, _log_qa = sess.run(self.lb_vars, feed_dict)
+                _elbo_tot, _elbo_kf, _elbo_vae, _log_px, _log_qa = sess.run(self.lb_vars, feed_dict)
                 elbo_tot.append(_elbo_tot)
                 elbo_kf.append(_elbo_kf)
-                kf_log_probs.append(_kf_log_probs)
+                #kf_log_probs.append(_kf_log_probs)
                 elbo_vae.append(_elbo_vae)
                 log_px.append(_log_px)
                 log_qa.append(_log_qa)
 
             # Write to summary
-            summary_train = self.def_summary('train', elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa)
+            #summary_train = self.def_summary('train', elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa)
+            summary_train = self.def_summary('train', elbo_tot, elbo_kf, elbo_vae, log_px, log_qa)
             writer.add_summary(summary_train, n)
             writer.add_summary(sess.run(all_summaries, feed_dict), n)
 
             if (n + 1) % self.config.display_step == 0:
-                mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
-                print("Epoch %d, ELBO %.2f, log_probs [%.2f, %.2f, %.2f, %.2f], elbo_vae %.2f, took %.2fs"
-                      % (n, np.mean(elbo_tot), mean_kf_log_probs[0], mean_kf_log_probs[1],
-                         mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
+                #mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
+                #print("Epoch %d, ELBO %.2f, log_probs [%.2f, %.2f, %.2f, %.2f], elbo_vae %.2f, took %.2fs"
+                #      % (n, np.mean(elbo_tot), mean_kf_log_probs[0], mean_kf_log_probs[1],
+                #         mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
+                #         time.time() - time_epoch_start))
+                print("Epoch %d, ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
+                      % (n, np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
                          time.time() - time_epoch_start))
+
 
             if (((n + 1) % self.config.generate_step == 0) and n > 0) or (n == self.config.num_epochs - 1) or (n == 0):
                 # Impute and calculate error
