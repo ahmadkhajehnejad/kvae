@@ -581,7 +581,7 @@ class CompactKalmanVariationalAutoencoder(object):
         x_true = feed_dict[self.x]
 
         ###### Filtering
-        feed_dict = {self.model_vars['smooth']: filter_z,
+        feed_dict = {self.model_vars['smooth']: filter_z[:2],
                      self.model_vars['C']: C_filter,
                      self.ph_steps: self.test_data.timesteps}
         a_filtered = self.sess.run(self.model_vars['a_mu_pred_seq'], feed_dict)
