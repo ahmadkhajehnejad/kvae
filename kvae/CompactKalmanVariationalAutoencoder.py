@@ -381,6 +381,7 @@ class CompactKalmanVariationalAutoencoder(object):
         # Initialize or reload variables
         if self.config.reload_model is not '':
             print("Restoring model in %s" % self.config.reload_model)
+            sys.stdout.flush()
             self.saver.restore(self.sess, self.config.reload_model)
         else:
             self.sess.run(tf.global_variables_initializer())
@@ -413,8 +414,8 @@ class CompactKalmanVariationalAutoencoder(object):
             log_qa = []
             time_epoch_start = time.time()
             for i in range(num_batches):
-                print('batch {} of {}:'.format(i, num_batches))
-                sys.stdout.flush()
+                #print('batch {} of {}:'.format(i, num_batches))
+                #sys.stdout.flush()
                 slc = slice(i * self.config.batch_size, (i + 1) * self.config.batch_size)
                 feed_dict = {self.x: self.train_data.images[slc],
                              self.kf.u: self.train_data.controls[slc],
@@ -461,20 +462,20 @@ class CompactKalmanVariationalAutoencoder(object):
 
             if (((n + 1) % self.config.generate_step == 0) and n > 0) or (n == self.config.num_epochs - 1) or (n == 0):
                 # Impute and calculate error
-                print('impute')
-                sys.stdout.flush()
+                #print('impute')
+                #sys.stdout.flush()
                 mask_impute = self.mask_impute_planning(t_init_mask=self.config.t_init_mask,
                                                         t_steps_mask=self.config.t_steps_mask)
                 out_res = self.impute(mask_impute, t_init_mask=self.config.t_init_mask, n=n)
 
                 # Generate sequences for evaluation
-                print('generate')
-                sys.stdout.flush()
+                #print('generate')
+                #sys.stdout.flush()
                 self.generate(n=n)
 
                 # Test on previously unseen data
-                print('test')
-                sys.stdout.flush()
+                #print('test')
+                #sys.stdout.flush()
                 test_elbo, summary_test = self.test()
                 writer.add_summary(summary_test, n)
 
@@ -482,6 +483,7 @@ class CompactKalmanVariationalAutoencoder(object):
         self.saver.save(sess, self.config.log_dir + '/model.ckpt')
         neg_lower_bound = -np.mean(test_elbo)
         print("Negative lower_bound on the test set: %s" % neg_lower_bound)
+        sys.stdout.flush()
         return out_res[0]
 
     def test(self):
@@ -523,7 +525,7 @@ class CompactKalmanVariationalAutoencoder(object):
         print("ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
                       % (np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
                          time.time() - time_test_start))
-
+        sys.stdout.flush()
         return np.mean(elbo_tot), summary
 
     def generate(self, idx_batch=0, n=99999):
@@ -665,7 +667,7 @@ class CompactKalmanVariationalAutoencoder(object):
             print("Hamming distance. x_imputed: %.5f, x_filtered: %.5f, x_gen_det: %.5f, baseline: %.5f. " % (
                 ham_unobs['smooth'], ham_unobs['filt'], ham_unobs['gen'], hamming_baseline))
             print("Normalized RMSE. a_imputed: %.3f, a_gen_det: %.3f" % (norm_rmse_a_imputed, norm_rmse_a_gen_det))
-
+            sys.stdout.flush()
         out_res = (ham_unobs['smooth'], ham_unobs['filt'], ham_unobs['gen'],
                    hamming_baseline, norm_rmse_a_imputed, norm_rmse_a_gen_det)
         return out_res
@@ -757,10 +759,12 @@ class CompactKalmanVariationalAutoencoder(object):
         for i, v in enumerate(vec):
             if mask_type == 'missing_planning':
                 print("--- Imputation planning, t_steps_mask %s" % v)
+                sys.stdout.flush()
                 mask_impute = self.mask_impute_planning(t_init_mask=self.config.t_init_mask,
                                                         t_steps_mask=v)
             elif mask_type == 'missing_random':
                 print("--- Imputation random, drop_prob %s" % v)
+                sys.stdout.flush()
                 mask_impute = self.mask_impute_random(t_init_mask=self.config.t_init_mask,
                                                       drop_prob=v)
             else:
@@ -780,6 +784,7 @@ class CompactKalmanVariationalAutoencoder(object):
                    (hamm_x_filtered, 'KVAE filtering')]
 
         print(out_res_all)
+        sys.stdout.flush()
         import matplotlib as mpl
         import matplotlib.pyplot as plt
         mpl.rcParams['xtick.labelsize'] = 14
@@ -798,6 +803,7 @@ class CompactKalmanVariationalAutoencoder(object):
 
         np.savez(self.config.log_dir + '/imputation_results_%s'% mask_type, results=results)
         print('Imputation plot  took %.2fs' % (time.time()-time_imput_start))
+        sys.stdout.flush()
 
     @staticmethod
     #def def_summary(prefix, elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa):
