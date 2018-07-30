@@ -478,7 +478,7 @@ class CompactKalmanVariationalAutoencoder(object):
 
         elbo_tot = []
         elbo_kf = []
-        kf_log_probs = []
+        #kf_log_probs = []
         elbo_vae = []
         log_px = []
         log_qa = []
@@ -492,21 +492,27 @@ class CompactKalmanVariationalAutoencoder(object):
                          self.scale_reconstruction: 1.0}
 
             # Bookkeeping.
-            _elbo_tot, _elbo_kf, _kf_log_probs, _elbo_vae, _log_px, _log_qa  = self.sess.run(self.lb_vars, feed_dict)
+            #_elbo_tot, _elbo_kf, _kf_log_probs, _elbo_vae, _log_px, _log_qa  = self.sess.run(self.lb_vars, feed_dict)
+            _elbo_tot, _elbo_kf, _elbo_vae, _log_px, _log_qa  = self.sess.run(self.lb_vars, feed_dict)
             elbo_tot.append(_elbo_tot)
             elbo_kf.append(_elbo_kf)
-            kf_log_probs.append(_kf_log_probs)
+            #kf_log_probs.append(_kf_log_probs)
             elbo_vae.append(_elbo_vae)
             log_px.append(_log_px)
             log_qa.append(_log_qa)
 
         # Write to summary
-        summary = self.def_summary('test', elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa)
-        mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
-        print("-- TEST, ELBO %.2f, log_probs [%.2f, %.2f, %.2f, %.2f], elbo_vae %.2f, took %.2fs"
-              % (np.mean(elbo_tot), mean_kf_log_probs[0], mean_kf_log_probs[1],
-                 mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
-                 time.time() - time_test_start))
+        #summary = self.def_summary('test', elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa)
+        summary = self.def_summary('test', elbo_tot, elbo_kf, elbo_vae, log_px, log_qa)
+        #mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
+        #print("-- TEST, ELBO %.2f, log_probs [%.2f, %.2f, %.2f, %.2f], elbo_vae %.2f, took %.2fs"
+        #      % (np.mean(elbo_tot), mean_kf_log_probs[0], mean_kf_log_probs[1],
+        #         mean_kf_log_probs[2], mean_kf_log_probs[3], np.mean(elbo_vae),
+        #         time.time() - time_test_start))
+        print("Epoch %d, ELBO %.2f, elbo_kf %.2f, elbo_vae %.2f, took %.2fs"
+                      % (n, np.mean(elbo_tot), np.mean(elbo_kf), np.mean(elbo_vae),
+                         time.time() - time_test_start))
+
         return np.mean(elbo_tot), summary
 
     def generate(self, idx_batch=0, n=99999):
@@ -783,10 +789,11 @@ class CompactKalmanVariationalAutoencoder(object):
         print('Imputation plot  took %.2fs' % (time.time()-time_imput_start))
 
     @staticmethod
-    def def_summary(prefix, elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa):
+    #def def_summary(prefix, elbo_tot, elbo_kf, kf_log_probs, elbo_vae, log_px, log_qa):
+    def def_summary(prefix, elbo_tot, elbo_kf, elbo_vae, log_px, log_qa):
         """ Add ELBO terms to a TF Summary object for Tensorboard
         """
-        mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
+        #mean_kf_log_probs = np.mean(kf_log_probs, axis=0)
 
         summary = tf.Summary()
         summary.value.add(tag=prefix + '_elbo_tot', simple_value=np.mean(elbo_tot))
@@ -794,9 +801,9 @@ class CompactKalmanVariationalAutoencoder(object):
         summary.value.add(tag=prefix + '_elbo_vae', simple_value=np.mean(elbo_vae))
         summary.value.add(tag=prefix + '_vae_px', simple_value=np.mean(log_px))
         summary.value.add(tag=prefix + '_vae_qa', simple_value=np.mean(log_qa))
-        summary.value.add(tag=prefix + '_kf_transitions', simple_value=mean_kf_log_probs[0])
-        summary.value.add(tag=prefix + '_kf_emissions', simple_value=mean_kf_log_probs[1])
-        summary.value.add(tag=prefix + '_kf_init', simple_value=mean_kf_log_probs[2])
-        summary.value.add(tag=prefix + '_kf_entropy', simple_value=mean_kf_log_probs[3])
+        #summary.value.add(tag=prefix + '_kf_transitions', simple_value=mean_kf_log_probs[0])
+        #summary.value.add(tag=prefix + '_kf_emissions', simple_value=mean_kf_log_probs[1])
+        #summary.value.add(tag=prefix + '_kf_init', simple_value=mean_kf_log_probs[2])
+        #summary.value.add(tag=prefix + '_kf_entropy', simple_value=mean_kf_log_probs[3])
 
         return summary
